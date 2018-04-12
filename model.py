@@ -4,11 +4,11 @@ from datetime import datetime
 
 GUESTBOOK_ENTRIES_FILE = "entries.json"
 entries = []
+idnum = 0
 
-def init(app):
+def init():
     global entries
     try:
-
         f = open(GUESTBOOK_ENTRIES_FILE)
         entries = json.loads(f.read())
         f.close()
@@ -22,9 +22,11 @@ def get_entries():
 
 def add_entry(name, text):
     global entries, GUESTBOOK_ENTRIES_FILE
+    global idnum
+    idnum += 1
     now = datetime.now()
     time_string = now.strftime("%b %d, %Y %-I:%M %p")
-    entry = {"author": name, "text": text, "timestamp": time_string}
+    entry = {"author": name, "text": text, "timestamp": time_string, "id": idnum}
     entries.insert(0, entry) ## add to front of list
     try:
         f = open(GUESTBOOK_ENTRIES_FILE, "w")
@@ -33,3 +35,18 @@ def add_entry(name, text):
         f.close()
     except:
         print("ERROR! Could not write entries to file.")
+
+def delete_entry(idnum):
+    global entries, GUESTBOOK_ENTRIES_FILE
+    new_entries = []
+    for text in entries:
+        if text["id"] != idnum:
+            new_entries.append(text)
+    entries = new_entries
+    try:
+        f = open(GUESTBOOK_ENTRIES_FILE, "w")
+        dump_string = json.dumps(entries)
+        f.write(dump_string)
+        f.close()
+    except:
+        print("ERROR! cannot delete entries.")
